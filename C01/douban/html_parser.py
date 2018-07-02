@@ -41,6 +41,16 @@ class HtmlParser(object):
         :return: [($url, $title),]
         '''
         lst = []
-        for a in soup.select('#subject_list li h2 > a'):
-            lst.append((urljoin(url, a.get('href')), a.get_text(strip=True)))
+        for t in soup.select('#subject_list li'):
+            data = {}
+            title_node = t.select_one('h2 > a[href]')
+            data['href'] = urljoin(url, title_node.get('href'))
+            data['title'] = title_node.get_text(strip=True)
+            remark_node = t.select_one('div.pub')
+            if remark_node is not None:
+                data['remark'] = remark_node.get_text(strip=True)
+            star_node = t.select_one('div.star > span.rating_nums')
+            if star_node is not None:
+                data['star'] = star_node.get_text()
+            lst.append(data)
         return lst
